@@ -33,70 +33,144 @@
         </div>
       </div>
     </div>
+
+    <!-- 添加文件类型统计柱状图 -->
+    <div class="card" style="margin-top: 10px">
+      <div style="margin-bottom: 20px">
+        <el-select style="width: 150px" v-model="barDays" @change="loadBarChart">
+          <el-option :value="7" label="近一周"></el-option>
+          <el-option :value="14" label="近2周"></el-option>
+          <el-option :value="30" label="近一个月"></el-option>
+        </el-select>
+      </div>
+      <div style="width: 100%; height: 400px" id="barChart"></div>
+    </div>
   </div>
 </template>
 
 <script>
-import * as echarts from 'echarts'
-const lineOption = {
-  title: {
-    text: '文件上传趋势图',
-    left: 'center'
-  },
-  tooltip: {
-    trigger: 'axis'
-  },
-  legend: {
-    left: 'left'
-  },
-  xAxis: {
-    type: 'category',
-    data: []
-  },
-  yAxis: {
-    type: 'value'
-  },
-  series: [
-    {
-      data: [],
-      type: 'line',
-      smooth: true
-    },
-  ]
-}
+import * as echarts from 'echarts';
 
 export default {
-  name: 'Home',
+  name: "Home",
   data() {
     return {
       user: JSON.parse(localStorage.getItem('xm-user') || '{}'),
       notices: [],
-      days: 7
+      days: 7,
+      barDays: 7, // 添加柱状图的时间范围控制
+      lineChart: null,
+      barChart: null
     }
   },
-  created() {
-    this.$request.get('/notice/selectAll').then(res => {
-      this.notices = res.data || []
-    })
-  },
   mounted() {
-    this.loadLine()
+    this.loadLine();
+    this.loadNotice();
+    this.loadBarChart(); // 初始化加载柱状图
   },
   methods: {
     loadLine() {
-      // 折线图
-      let linetDom = document.getElementById('line');  // div id=line
-      let lineChart = echarts.init(linetDom);
-      // 参考
-      this.$request.get('/diskFiles/count', { params: { days: this.days } }).then(res => {
-        lineOption.xAxis.data = res.data?.map(v => v.date) || []
-        lineOption.series[0].data = res.data.map(v => v.count) || []
-        lineChart.setOption(lineOption)
-      }).catch(error => {
-        console.error('请求折线图数据失败：', error);
-        
-    });
+      this.$request.get('/diskFiles/selectFileLine/' + this.days).then(res => {
+        if (res.code === '200') {
+          let lines = res.data.lines;
+          let xAxis = res.data.xAxis;
 
+          let option = {
+            title: {
+              text: '文件上传趋势图'
+            },
+            tooltip: {
+              trigger: 'axis'
+            },
+            legend: {
+              data: ['文件数量']
+            },
+            xAxis: {
+              type: 'category',
+              data: xAxis
+            },
+            yAxis: {
+              type: 'value'
+            },
+            series: [
+              {
+                name: '文件数量',
+                type: 'line',
+                data: lines
+              }
+            ]
+          };
+
+          // 销毁之前的实例以防内存泄漏
+          if (this.lineChart) {
+            this.lineChart.dispose();
+          }
+
+          this.lineChart = echarts.init(document.getElementById('line'));
+          this.lineChart.setOption(option);
+        }
+      });
+    },
+
+    loadBarChart() {
+      this.$request.get('/diskFiles/selectFileTypeBar/' + this.barDays).then(res => {
+        if (res.code === '200') {
+          const data = res.data;
+
+          // 准备图表数据
+          const types = Object.keys(data);
+          const seriesData = [];
+
+          // 构造每个日期的数据
+          const dates = [...new Set(types.flatMap(type => Object.keys(data[type])))];
+
+          const series = types.map(type => {
+            return {
+              name: type,
+              type: 'bar',
+              stack: '总量',
+              data: dates.map(date => data[type][date] || 0)
+            };
+          });
+
+          let option = {
+            title: {
+              text: '每日文件类型统计'
+            },
+            tooltip: {
+              trigger: 'axis',
+              axisPointer: {
+                type: 'shadow'
+              }
+            },
+            legend: {
+              data: types
+            },
+            xAxis: {
+              type: 'category',
+              data: dates
+            },
+            yAxis: {
+              type: 'value'
+            },
+            series: series
+          };
+
+          // 销毁之前的实例以防内存泄漏
+          if (this.barChart) {
+            this.barChart.dispose();
+          }
+
+          this.barChart = echarts.init(document.getElementById('barChart'));
+          this.barChart.setOption(option);
+        }
+      });
+    },
+
+    loadNotice() {
+      this.$request.get('/notice/selectAll').then(res => {
+        this.notices = res.data || [];
+      });
     }
   }
 }

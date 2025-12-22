@@ -34,10 +34,7 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -412,6 +409,29 @@ public class DiskFilesService {
             list.add(dict);
         }
         return list;
+    }
+
+    // 在 DiskFilesService.java 中添加对应方法
+    public Map<String, Map<String, Long>> selectFileTypeBar(Integer days) {
+        DateTime end = DateUtil.endOfDay(new Date());
+        DateTime start = DateUtil.beginOfDay(DateUtil.offsetDay(end, -days));
+
+        List<DiskFiles> files = diskFilesMapper.selectFileTypesByDateRange(start, end);
+
+        // 按类型和日期分组统计
+        Map<String, Map<String, Long>> result = new HashMap<>();
+
+        for (DiskFiles file : files) {
+            if ("是".equals(file.getFolder())) continue; // 跳过文件夹
+
+            String type = file.getType();
+            String date = DateUtil.format(DateUtil.parse(file.getCrateTime()), "yyyy-MM-dd");
+
+            result.computeIfAbsent(type, k -> new HashMap<>())
+                    .merge(date, 1L, Long::sum);
+        }
+
+        return result;
     }
 
 }

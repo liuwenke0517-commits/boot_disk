@@ -2,9 +2,11 @@ package com.example.mapper;
 
 import com.example.entity.DiskFiles;
 import com.example.entity.Trash;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -56,5 +58,8 @@ public interface DiskFilesMapper {
 
     @Select("select count(*) from disk_files where crate_time like concat('%', #{date}, '%')")
     Integer selectByDate(String date);
+
+    // 在 DiskFilesMapper.java 中添加方法声明
+    List<DiskFiles> selectFileTypesByDateRange(@Param("start") Date start, @Param("end") Date end);
 
 }

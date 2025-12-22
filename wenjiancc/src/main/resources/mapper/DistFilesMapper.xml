@@ -86,9 +86,7 @@
         where  id = #{id}
     </delete>
 
-    <delete id="deleteBatch">
-        delete from disk_files where user_id = #{userId} and `delete` = 1
-    </delete>
+
 
     <insert id="insert" parameterType="com.example.entity.DiskFiles" useGeneratedKeys="true" keyProperty="id">
         insert into disk_files
@@ -159,5 +157,13 @@
         </set>
         where id = #{id}
     </update>
+
+    <select id="selectFileTypesByDateRange" resultType="com.example.entity.DiskFiles">
+        SELECT type, crate_time
+        FROM disk_files
+        WHERE crate_time BETWEEN #{start} AND #{end}
+          AND folder = '否'
+        ORDER BY crate_time
+    </select>
 
 </mapper>

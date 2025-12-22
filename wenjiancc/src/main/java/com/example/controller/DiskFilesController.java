@@ -1,5 +1,7 @@
 package com.example.controller;
 
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Dict;
 import com.example.common.Result;
 import com.example.entity.DiskFiles;
@@ -12,9 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * 网盘文件前端操作接口
@@ -185,5 +185,15 @@ public class DiskFilesController {
         List<Dict> list = diskFilesService.count(days);
         return Result.success(list);
     }
+
+    // 在 DiskFilesController.java 中添加新接口
+    @GetMapping("/selectFileTypeBar/{days}")
+    public Result selectFileTypeBar(@PathVariable Integer days) {
+        return Result.success(diskFilesService.selectFileTypeBar(days));
+    }
+
+
+
+
 
 }
