@@ -61,7 +61,9 @@ public class ShareController {
     @GetMapping("/selectById/{id}")
     public Result selectById(@PathVariable Integer id) {
         Share share = shareService.selectById(id);
-        shareService.updateCount(id);  // 访问次数+1
+        if (share != null) {
+            shareService.updateCount(id);  // 访问次数+1
+        }
         return Result.success(share);
     }
 

@@ -26,6 +26,7 @@ const routes = [
       { path: 'diskFiles', name: 'DiskFiles', meta: { name: '网盘文件' }, component: () => import('../views/manager/DiskFiles') },
       { path: 'share', name: 'Share', meta: { name: '文件分享' }, component: () => import('../views/manager/Share') },
       { path: 'trash', name: 'Trash', meta: { name: '垃圾箱' }, component: () => import('../views/manager/Trash') },
+      { path: 'favorite', name: 'Favorite', meta: { name: '我的收藏' }, component: () => import('../views/manager/Favorite') },
     ]
   },
   {
@@ -36,6 +37,8 @@ const routes = [
       { path: 'home', name: 'Home', meta: { name: '系统首页' }, component: () => import('../views/front/Home') },
       { path: 'person', name: 'Person', meta: { name: '个人信息' }, component: () => import('../views/front/Person') },
       { path: 'openShare', name: 'OpenShare', meta: { name: '下载分享内容' }, component: () => import('../views/front/OpenShare') },
+      { path: 'share', name: 'FrontShare', meta: { name: '我的分享' }, component: () => import('../views/front/Share') },
+      { path: 'favorite', name: 'FrontFavorite', meta: { name: '我的收藏' }, component: () => import('../views/front/Favorite') },
     ]
   },
   { path: '/login', name: 'Login', meta: { name: '登录' }, component: () => import('../views/Login.vue') },

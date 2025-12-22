@@ -45,6 +45,7 @@
             <el-menu-item index="/diskFiles">网盘文件</el-menu-item>
             <el-menu-item index="/share">文件分享</el-menu-item>
             <el-menu-item index="/trash">垃圾箱管理</el-menu-item>
+            <el-menu-item index="/favorite">我的收藏</el-menu-item>
             <el-menu-item index="/notice">公告信息</el-menu-item>
           </el-submenu>
 

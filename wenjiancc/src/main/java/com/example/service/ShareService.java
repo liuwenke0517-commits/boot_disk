@@ -58,7 +58,9 @@ public class ShareService {
      */
     public Share selectById(Integer id) {
         Share share = shareMapper.selectById(id);
-        this.packageShare(share);
+        if (share != null) {
+            this.packageShare(share);
+        }
         return share;
     }
 

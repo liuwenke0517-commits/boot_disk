@@ -92,9 +92,9 @@ export default {
     load() {
       this.$request.get('/share/selectById/' + this.shareId).then(res=> {
         this.share = res.data || {}
-        this.tableData = res.data ? [res.data] : []
-        if (this.share.status === '已过期') {
+        if (!this.share.id || this.share.status === '已过期') {
           this.validateFailed = true
+          return
         }
 
         // 验证code对不对
@@ -103,6 +103,9 @@ export default {
         } else {
           this.loadFiles()
         }
+      }).catch(error => {
+        console.error('加载分享信息失败:', error)
+        this.validateFailed = true
       })
     },
     loadFiles() {
@@ -114,6 +117,9 @@ export default {
         }
       }).then(res => {
         this.tableData = res.data || []
+      }).catch(error => {
+        console.error('加载分享文件失败:', error)
+        this.$message.error('加载分享文件失败')
       })
 
       // 查询当前目录的路径数据
@@ -121,6 +127,8 @@ export default {
         params: { folderId: this.folderId || null }
       }).then(res => {
         this.folders = res.data || []
+      }).catch(error => {
+        console.error('加载文件夹路径失败:', error)
       })
     }
   }

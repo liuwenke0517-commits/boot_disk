@@ -52,7 +52,10 @@
                   <i class="el-icon-rename" style="margin-right: 10px; cursor: pointer" @click.stop="rename(scope.row)"></i>
                 </el-tooltip>
                 <el-tooltip content="复制" effect="light" :open-delay="1000">
-                  <i class="el-icon-document-copy" style="cursor: pointer" @click.stop="copy(scope.row)"></i>
+                  <i class="el-icon-document-copy" style="margin-right: 10px; cursor: pointer" @click.stop="copy(scope.row)"></i>
+                </el-tooltip>
+                <el-tooltip content="收藏" effect="light" :open-delay="1000">
+                  <i class="el-icon-star-off" style="cursor: pointer" @click.stop="favorite(scope.row)"></i>
                 </el-tooltip>
               </div>
             </div>
@@ -130,7 +133,7 @@ export default {
           this.$message.success("操作成功")
 
           let shareData = res.data
-          let currentUrl = location.href.substring(0, location.href.indexOf('/front'))
+          let currentUrl = location.origin
           this.shareLink = currentUrl + '/front/openShare?code=' + shareData.code + '&shareId=' + shareData.id
         } else {
           this.$message.error(res.msg)
@@ -148,6 +151,15 @@ export default {
         if (res.code === '200') {
           this.$message.success("操作成功")
           this.load()
+        } else {
+          this.$message.error(res.msg)
+        }
+      })
+    },
+    favorite(row) {
+      this.$request.post('/favorite/favoriteFile/' + row.id).then(res => {
+        if (res.code === '200') {
+          this.$message.success("收藏成功")
         } else {
           this.$message.error(res.msg)
         }

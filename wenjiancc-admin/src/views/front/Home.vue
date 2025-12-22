@@ -1,51 +1,53 @@
 <template>
-  <div>
-    <div style="display: flex; color: #666">
-      <div style="width: 200px; text-align: center;  border-right: 1px solid #ddd; min-height: calc(100vh - 86px)">
-        <!-- 第一部分-->
-        <div style="padding: 10px 0">
-          <div @click="loadFiles(item.category)" class="category" style="padding: 10px 0" v-for="item in categoryList" :key="item.text"
-               :class="{ 'category-active' : category === item.category}">
-            <i v-if="item.icon" :class="item.icon" style="margin-right: 5px"></i>
-            <span>{{ item.text }}</span>
-          </div>
-        </div>
-
-        <!-- 第二部分-->
-        <div style="border-top: 1px solid #ddd; text-align: center; padding-top: 10px">
-          <div @click="loadFiles('share')" style="padding: 10px 0; display: flex; justify-content: center" class="category" :class="{ 'category-active' : category === 'share'}">
-            <div style="width: 75px; text-align: left">
-              <i class="el-icon-share" style="margin-right: 5px"></i>
-              <span>我的分享</span>
-            </div>
-          </div>
-          <div @click="loadFiles('trash')" style="padding: 10px 0; display: flex; justify-content: center" class="category" :class="{ 'category-active' : category === 'trash'}">
-            <div style="width: 75px; text-align: left">
-              <i class="el-icon-delete" style="margin-right: 5px"></i>
-              <span>回收站</span>
-            </div>
-          </div>
-        </div>
+  <div class="home-container">
+    <div class="left">
+      <div style="padding: 10px 0">
+        <el-button type="primary" @click="addFolder">新建文件夹</el-button>
+        <el-upload
+            :action="uploadUrl"
+            :headers="{token: user.token}"
+            :on-success="handleUploadSuccess"
+            :show-file-list="false"
+            style="display: inline-block; margin-left: 10px"
+        >
+          <el-button type="success">上传文件</el-button>
+        </el-upload>
       </div>
 
-      <div style="flex: 1">
-        <Trash :type-list="typeList"  v-if="category === 'trash'" />
-        <Share :type-list="typeList" v-if="category === 'share'" />
-        <Main :type-list="typeList" v-else />
+      <div class="category" :class="{'category-active': !category}" @click="loadFiles('all')">
+        <i class="el-icon-files" style="margin-right: 10px"></i>全部文件
       </div>
+      <div class="category" :class="{'category-active': category === 'img'}" @click="loadFiles('img')">
+        <i class="el-icon-picture-outline" style="margin-right: 10px"></i>图片
+      </div>
+      <div class="category" :class="{'category-active': category === 'video'}" @click="loadFiles('video')">
+        <i class="el-icon-video-play" style="margin-right: 10px"></i>视频
+      </div>
+      <div class="category" :class="{'category-active': category === 'zip'}" @click="loadFiles('zip')">
+        <i class="el-icon-box" style="margin-right: 10px"></i>压缩包
+      </div>
+      <div class="category" @click="$router.push('/front/favorite')">
+        <i class="el-icon-star-off" style="margin-right: 10px"></i>我的收藏
+      </div>
+      <div class="category" @click="$router.push('/front/share')">
+        <i class="el-icon-share" style="margin-right: 10px"></i>我的分享
+      </div>
+      <div class="category" @click="$router.push('/front/trash')">
+        <i class="el-icon-delete" style="margin-right: 10px"></i>回收站
+      </div>
+    </div>
+
+    <div class="right">
+      <Main :typeList="typeList" ref="main"/>
     </div>
   </div>
 </template>
 
 <script>
-
 import Main from "@/components/Main";
-import Trash from "@/components/Trash";
-import Share from "@/components/Share";
+
 export default {
   components: {
-    Share,
-    Trash,
     Main
   },
   data() {
@@ -77,6 +79,17 @@ export default {
   },
   // methods：本页面所有的点击事件或者其他函数定义区
   methods: {
+    addFolder() {
+      this.$refs.main.addFolder()
+    },
+    handleUploadSuccess(response, file, fileList) {
+      if (response.code === '200') {
+        this.$message.success('上传成功')
+        this.$refs.main.load()
+      } else {
+        this.$message.error(response.msg)
+      }
+    },
     loadFiles(category) {
       location.href = '/front/home?category=' + category
     }

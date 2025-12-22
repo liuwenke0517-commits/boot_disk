@@ -70,10 +70,10 @@ export default {
   },
   methods: {
     loadLine() {
-      this.$request.get('/diskFiles/selectFileLine/' + this.days).then(res => {
+      this.$request.get('/diskFiles/count?days=' + this.days).then(res => {
         if (res.code === '200') {
-          let lines = res.data.lines;
-          let xAxis = res.data.xAxis;
+          let lines = res.data.map(item => item.count);
+          let xAxis = res.data.map(item => item.date);
 
           let option = {
             title: {
@@ -108,7 +108,13 @@ export default {
 
           this.lineChart = echarts.init(document.getElementById('line'));
           this.lineChart.setOption(option);
+        } else {
+          console.error('获取文件上传趋势数据失败:', res.msg);
+          this.$message.error('获取文件上传趋势数据失败: ' + res.msg);
         }
+      }).catch(error => {
+        console.error('加载文件上传趋势图失败:', error);
+        this.$message.error('加载文件上传趋势图失败');
       });
     },
 
@@ -119,7 +125,23 @@ export default {
 
           // 准备图表数据
           const types = Object.keys(data);
-          const seriesData = [];
+          if (types.length === 0) {
+            // 如果没有数据，显示空状态
+            let option = {
+              title: {
+                text: '每日文件类型统计',
+                subtext: '暂无数据'
+              }
+            };
+            
+            if (this.barChart) {
+              this.barChart.dispose();
+            }
+            
+            this.barChart = echarts.init(document.getElementById('barChart'));
+            this.barChart.setOption(option);
+            return;
+          }
 
           // 构造每个日期的数据
           const dates = [...new Set(types.flatMap(type => Object.keys(data[type])))];
@@ -163,13 +185,22 @@ export default {
 
           this.barChart = echarts.init(document.getElementById('barChart'));
           this.barChart.setOption(option);
+        } else {
+          console.error('获取文件类型统计数据失败:', res.msg);
+          this.$message.error('获取文件类型统计数据失败: ' + res.msg);
         }
+      }).catch(error => {
+        console.error('加载文件类型统计图失败:', error);
+        this.$message.error('加载文件类型统计图失败');
       });
     },
 
     loadNotice() {
       this.$request.get('/notice/selectAll').then(res => {
         this.notices = res.data || [];
+      }).catch(error => {
+        console.error('加载公告失败:', error);
+        this.$message.error('加载公告失败');
       });
     }
   }
